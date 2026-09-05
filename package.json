@@ -1,0 +1,12 @@
+{
+  "name": "landchain-workspace",
+  "version": "1.0.0",
+  "description": "LANDCHAIN: Blockchain Secure Platform for Identity, Access Control, and Digital Asset Management - SIH 2026 (SIH26125)",
+  "scripts": {
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npm run dev",
+    "seed": "cd backend && npm run seed",
+    "test:backend": "cd backend && npm test",
+    "test:e2e": "cd backend && node test-server-e2e.js"
+  }
+}
