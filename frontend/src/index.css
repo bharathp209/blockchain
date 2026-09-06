@@ -162,8 +162,21 @@ body {
   }
 }
 
+@keyframes floatCenterBadge {
+  0%, 100% {
+    transform: translate(-50%, 0px) rotateX(3deg);
+  }
+  50% {
+    transform: translate(-50%, -8px) rotateX(0deg);
+  }
+}
+
 .animate-float-3d {
   animation: float3D 6s ease-in-out infinite;
+}
+
+.animate-float-badge {
+  animation: floatCenterBadge 5s ease-in-out infinite;
 }
 
 .animate-float-3d-slow {

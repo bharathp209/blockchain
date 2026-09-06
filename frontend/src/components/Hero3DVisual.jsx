@@ -3,7 +3,7 @@ import { ShieldCheck, CheckCircle2, Blocks, Hash, Link as LinkIcon, Database, Ar
 
 export default function Hero3DVisual({ onExplore }) {
   return (
-    <div className="relative w-full h-[580px] lg:h-[620px] flex items-center justify-center perspective-1500 select-none">
+    <div className="relative w-full h-[600px] lg:h-[640px] flex items-center justify-center perspective-1500 select-none">
       {/* 1. Rotating Glowing Orbits in Background */}
       <div 
         className="absolute w-[460px] h-[460px] rounded-full border border-cyan-500/15 pointer-events-none"
@@ -147,9 +147,9 @@ export default function Hero3DVisual({ onExplore }) {
         </div>
       </div>
 
-      {/* BLOCK #3: ANCHOR VERIFIED (Lower Right - y:420px) */}
+      {/* BLOCK #3: ANCHOR VERIFIED (Lower Right - y:360px) */}
       <div 
-        className="absolute bottom-16 right-0 z-20 p-2.5 rounded-xl bg-[#090e1a]/95 border border-emerald-500/40 backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.2)] w-44 transition hover:scale-105"
+        className="absolute bottom-28 right-0 z-20 p-2.5 rounded-xl bg-[#090e1a]/95 border border-emerald-500/40 backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.2)] w-44 transition hover:scale-105"
         style={{
           transform: 'rotateX(-6deg) rotateY(-8deg)',
           animation: 'float3D 8s ease-in-out infinite'
@@ -169,19 +169,19 @@ export default function Hero3DVisual({ onExplore }) {
         </div>
       </div>
 
-      {/* 4. Foreground Floating Holographic Verification Badge (Cleanly docked at bottom center) */}
+      {/* 4. Foreground Floating Holographic Verification Badge (Smoothly floating at bottom center with ample clearance) */}
       <div 
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-xl bg-gradient-to-r from-slate-900/95 via-[#081220]/95 to-slate-900/95 border border-cyan-400/50 shadow-[0_10px_35px_rgba(0,0,0,0.8),0_0_25px_rgba(0,212,255,0.2)] backdrop-blur-xl flex items-center gap-3 w-max max-w-[90%]"
+        className="absolute bottom-0 left-1/2 z-30 px-3.5 py-2 rounded-2xl bg-gradient-to-r from-slate-900/95 via-[#081220]/95 to-slate-900/95 border border-cyan-400/50 shadow-[0_15px_35px_rgba(0,0,0,0.8),0_0_30px_rgba(0,212,255,0.3)] backdrop-blur-xl flex items-center gap-3 w-max max-w-[85%] select-none animate-float-badge transition hover:scale-105"
       >
-        <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0">
-          <ShieldCheck className="w-5 h-5" />
+        <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+          <ShieldCheck className="w-4 h-4" />
         </div>
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-black tracking-wider text-white">
               TN-ERD-1024
             </span>
-            <span className="text-[8px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold">
+            <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold">
               VERIFIED ✓
             </span>
           </div>

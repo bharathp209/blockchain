@@ -17,10 +17,11 @@ import {
   FileText,
   Layers,
   Menu,
-  X
+  X,
+  ArrowRightLeft
 } from 'lucide-react';
 
-export default function LandingPage({ onGoToLogin, onSelectRecord }) {
+export default function LandingPage({ onGoToLogin, onSelectRecord, onNavigateToTransfers }) {
   const [searchSurvey, setSearchSurvey] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState(null);
@@ -117,6 +118,15 @@ export default function LandingPage({ onGoToLogin, onSelectRecord }) {
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Verify</span>
           </button>
+
+          <button
+            onClick={onNavigateToTransfers}
+            className="px-4 py-2 rounded-xl bg-slate-900/80 hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-600 border border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-slate-950 transition-all shadow-[0_0_12px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(0,212,255,0.4)] flex items-center gap-1.5 active:scale-95"
+            title="Property Transfer & Mutation Hub (Registrar/Admin only)"
+          >
+            <ArrowRightLeft className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Transfers</span>
+          </button>
         </nav>
 
         {/* Right Action Button & Mobile Toggle */}
@@ -166,6 +176,16 @@ export default function LandingPage({ onGoToLogin, onSelectRecord }) {
           >
             <ShieldCheck className="w-3.5 h-3.5" />
             Verify Record
+          </button>
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              if (onNavigateToTransfers) onNavigateToTransfers();
+            }}
+            className="w-full text-center py-2.5 px-4 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200 hover:text-white hover:border-cyan-400 transition flex items-center justify-center gap-2"
+          >
+            <ArrowRightLeft className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Transfers</span>
           </button>
         </div>
       )}
@@ -376,8 +396,11 @@ export default function LandingPage({ onGoToLogin, onSelectRecord }) {
       </section>
 
       {/* ================= FOOTER ================= */}
-      <footer className="mt-auto border-t border-slate-800/80 py-6 px-6 lg:px-12 text-center text-xs text-slate-500 relative z-10">
-        <p>LANDCHAIN • Secure Blockchain Land Record Management</p>
+      <footer className="mt-auto border-t border-slate-800/80 py-6 px-6 lg:px-12 text-center text-xs text-slate-500 relative z-10 space-y-1.5">
+        <p className="text-slate-400 font-medium">LANDCHAIN • Secure Blockchain Land Record Management</p>
+        <p className="text-cyan-400/80 font-mono text-[11px] tracking-wider">
+          © {new Date().getFullYear()} Bharath. All rights reserved.
+        </p>
       </footer>
 
       {/* Verification Modal */}

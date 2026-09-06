@@ -17,6 +17,7 @@ import RecordDetailsPage from './pages/RecordDetailsPage';
 import BlockchainExplorerPage from './pages/BlockchainExplorerPage';
 import AuditLogsPage from './pages/AuditLogsPage';
 import UsersPage from './pages/UsersPage';
+import PropertyTransfersPage from './pages/PropertyTransfersPage';
 
 export default function App() {
   const { user, loading, login, logout } = useAuth();
@@ -123,14 +124,22 @@ export default function App() {
   }
 
   // 1. Landing Page View (unauthenticated or public view)
-  if (!user && currentView === 'landing') {
+  if (currentView === 'landing') {
     return (
       <>
         <LandingPage
-          onGoToLogin={() => setCurrentView('login')}
+          onGoToLogin={() => setCurrentView(user ? 'app' : 'login')}
           onSelectRecord={(id) => {
             setSelectedRecordId(id);
-            setCurrentView('login');
+            setCurrentView(user ? 'app' : 'login');
+          }}
+          onNavigateToTransfers={() => {
+            setActiveTab('transfers');
+            if (user) {
+              setCurrentView('app');
+            } else {
+              setCurrentView('transfers');
+            }
           }}
         />
         <DemoGuideModal
@@ -139,6 +148,30 @@ export default function App() {
           onSelectPersona={handleSelectPersona}
         />
       </>
+    );
+  }
+
+  // 1B. Transfers Page View (when opened directly from Landing or unauthenticated)
+  if (!user && currentView === 'transfers') {
+    return (
+      <div className="min-h-screen bg-[#05070d] text-slate-100 flex flex-col font-['Inter',sans-serif]">
+        <PropertyTransfersPage
+          onBack={() => setCurrentView('landing')}
+          onNavigate={(tab) => {
+            setActiveTab(tab);
+            setCurrentView('app');
+          }}
+          onOpenExplorer={() => {
+            setActiveTab('blockchain');
+            setCurrentView('app');
+          }}
+        />
+        <DemoGuideModal
+          isOpen={isDemoGuideOpen}
+          onClose={() => setIsDemoGuideOpen(false)}
+          onSelectPersona={handleSelectPersona}
+        />
+      </div>
     );
   }
 
@@ -215,6 +248,17 @@ export default function App() {
                   />
                 )}
 
+                {activeTab === 'transfers' && (
+                  <PropertyTransfersPage
+                    onBack={() => setCurrentView('landing')}
+                    onNavigate={(tab) => setActiveTab(tab)}
+                    onOpenExplorer={() => {
+                      setSelectedRecordId(null);
+                      setActiveTab('blockchain');
+                    }}
+                  />
+                )}
+
                 {activeTab === 'add-record' && (
                   <AddRecordPage
                     onNavigate={(tab) => setActiveTab(tab)}
@@ -235,6 +279,14 @@ export default function App() {
                 )}
               </>
             )}
+
+            {/* Page Footer */}
+            <footer className="mt-16 py-6 border-t border-slate-800/80 text-center text-xs text-slate-500 relative z-10 space-y-1">
+              <p className="text-slate-400 font-medium">LANDCHAIN • Secure Blockchain Land Record Management</p>
+              <p className="text-cyan-400/80 font-mono text-[11px] tracking-wider">
+                © {new Date().getFullYear()} Bharath. All rights reserved.
+              </p>
+            </footer>
           </div>
         </main>
       </div>

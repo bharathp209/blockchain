@@ -314,19 +314,24 @@ function updateRecord(req, res) {
     const { id } = req.params;
     const {
       owner_name,
+      buyer_name,
+      buyer_id_number,
+      sale_value,
+      deed_type = 'Absolute Sale Deed',
+      stamp_duty,
       village,
       district,
       state,
       land_area,
-      mutation_reason = 'Ownership transfer / mutation update'
+      mutation_reason = 'Ownership transfer / sale deed execution'
     } = req.body;
 
-    const existing = db.get('SELECT * FROM LAND_RECORDS WHERE id = ?', id);
+    const existing = db.get('SELECT * FROM LAND_RECORDS WHERE id = ? OR survey_number = ?', id, id);
     if (!existing) {
       return res.status(404).json({ success: false, message: 'Land record not found.' });
     }
 
-    const updatedOwner = owner_name !== undefined ? owner_name.trim() : existing.owner_name;
+    const updatedOwner = buyer_name ? buyer_name.trim() : (owner_name !== undefined ? owner_name.trim() : existing.owner_name);
     const updatedVillage = village !== undefined ? village.trim() : existing.village;
     const updatedDistrict = district !== undefined ? district.trim() : existing.district;
     const updatedState = state !== undefined ? state.trim() : existing.state;
@@ -345,7 +350,7 @@ function updateRecord(req, res) {
       updatedState,
       updatedArea,
       now,
-      id
+      existing.id
     );
 
     // 2. Recalculate canonical Record Hash
@@ -360,15 +365,21 @@ function updateRecord(req, res) {
     };
     const newRecordHash = generateRecordHash(updatedPayload);
 
-    // 3. Create UPDATE_LAND_RECORD Blockchain Transaction
+    // 3. Create OWNERSHIP_MUTATION Blockchain Transaction
     const transactionId = `TX-MUT-${existing.survey_number}-${Date.now().toString(36).toUpperCase()}`;
     const txPayload = {
       transaction_id: transactionId,
-      transaction_type: 'UPDATE_LAND_RECORD',
+      transaction_type: 'OWNERSHIP_MUTATION',
       land_record_id: existing.id,
       survey_number: existing.survey_number,
+      seller_name: existing.owner_name,
+      buyer_name: updatedOwner,
       previous_owner: existing.owner_name,
       new_owner: updatedOwner,
+      buyer_id_number: buyer_id_number || 'N/A',
+      sale_value: sale_value || 'N/A',
+      deed_type,
+      stamp_duty: stamp_duty || 'N/A',
       location: `${updatedVillage}, ${updatedDistrict}, ${updatedState}`,
       land_area: updatedArea,
       mutation_reason,
@@ -392,7 +403,7 @@ function updateRecord(req, res) {
         data_hash, previous_hash, block_hash, timestamp
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       transactionId,
-      'UPDATE_LAND_RECORD',
+      'OWNERSHIP_MUTATION',
       existing.id,
       req.user.id,
       newRecordHash,
@@ -406,13 +417,15 @@ function updateRecord(req, res) {
       userId: req.user.id,
       userName: req.user.name,
       userRole: req.user.role,
-      action: 'UPDATE_LAND_RECORD',
+      action: 'OWNERSHIP_MUTATION',
       resource: `Survey No: ${existing.survey_number}`,
       status: 'SUCCESS',
       details: {
         record_id: existing.id,
-        previous_owner: existing.owner_name,
-        new_owner: updatedOwner,
+        seller: existing.owner_name,
+        buyer: updatedOwner,
+        sale_value: sale_value || 'N/A',
+        deed_type,
         transaction_id: transactionId,
         block_index: newBlock.index,
         record_hash: newRecordHash
@@ -421,11 +434,16 @@ function updateRecord(req, res) {
 
     return res.json({
       success: true,
-      message: 'Land record mutation successfully updated and anchored to blockchain.',
+      message: 'Land ownership transfer successfully executed and anchored to blockchain.',
       transaction_id: transactionId,
       block_index: newBlock.index,
       record_hash: newRecordHash,
-      block_hash: newBlock.hash
+      block_hash: newBlock.hash,
+      seller_name: existing.owner_name,
+      buyer_name: updatedOwner,
+      sale_value: sale_value || 'N/A',
+      deed_type,
+      timestamp: now
     });
   } catch (error) {
     console.error('Error updating land record:', error);

@@ -520,6 +520,119 @@ export const clientEngine = {
     return { success: true, message: 'Record restored to blockchain truth.' };
   },
 
+  async transferLandRecord(idOrSurvey, data) {
+    await initClientStorage();
+    const records = JSON.parse(localStorage.getItem(STORAGE_KEY_RECORDS) || '[]');
+    const recordIndex = records.findIndex(r => String(r.id) === String(idOrSurvey) || r.survey_number === idOrSurvey);
+    if (recordIndex === -1) throw new Error('Land record not found for transfer');
+
+    const record = records[recordIndex];
+    const previousOwner = record.owner_name;
+    const newOwner = data.buyer_name || data.owner_name || 'New Buyer';
+    const saleValue = data.sale_value || 'N/A';
+    const deedType = data.deed_type || 'Absolute Sale Deed';
+    const stampDuty = data.stamp_duty || 'N/A';
+    const buyerId = data.buyer_id_number || 'N/A';
+    const now = new Date().toISOString();
+
+    // 1. Update record
+    records[recordIndex].owner_name = newOwner;
+    records[recordIndex].status = 'REGISTERED';
+    records[recordIndex].updated_at = now;
+    localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
+
+    // 2. Compute canonical hash
+    const newRecordHash = await generateBrowserRecordHash(records[recordIndex]);
+
+    // 3. Create blockchain block
+    const blocks = JSON.parse(localStorage.getItem(STORAGE_KEY_BLOCKS) || '[]');
+    const latestBlock = blocks[blocks.length - 1];
+    const prevHash = latestBlock.hash;
+    const newIndex = blocks.length;
+    const txId = `TX-MUT-${record.survey_number}-${Date.now().toString(36).toUpperCase()}`;
+
+    const txPayload = {
+      transaction_id: txId,
+      transaction_type: 'OWNERSHIP_MUTATION',
+      land_record_id: record.id,
+      survey_number: record.survey_number,
+      seller_name: previousOwner,
+      buyer_name: newOwner,
+      previous_owner: previousOwner,
+      new_owner: newOwner,
+      buyer_id_number: buyerId,
+      sale_value: saleValue,
+      deed_type: deedType,
+      stamp_duty: stampDuty,
+      location: `${record.village}, ${record.district}, ${record.state}`,
+      land_area: record.land_area,
+      mutation_reason: data.mutation_reason || 'Ownership transfer / sale deed execution',
+      document_hash: record.document_hash,
+      record_hash: newRecordHash,
+      updated_by: { id: 2, name: 'S. Meenakshi', role: 'REGISTRAR' },
+      timestamp: now
+    };
+
+    const newBlockHash = await calculateBrowserSha256(`${newIndex}|${now}|${JSON.stringify(txPayload)}|${prevHash}|0`);
+
+    const newBlock = {
+      index: newIndex,
+      timestamp: now,
+      transaction: txPayload,
+      previousHash: prevHash,
+      hash: newBlockHash,
+      nonce: 0
+    };
+
+    blocks.push(newBlock);
+    localStorage.setItem(STORAGE_KEY_BLOCKS, JSON.stringify(blocks));
+
+    // 4. Record transaction
+    const transactions = JSON.parse(localStorage.getItem(STORAGE_KEY_TRANSACTIONS) || '[]');
+    transactions.push({
+      id: transactions.length + 1,
+      transaction_id: txId,
+      transaction_type: 'OWNERSHIP_MUTATION',
+      land_record_id: record.id,
+      data_hash: newRecordHash,
+      previous_hash: prevHash,
+      block_hash: newBlockHash,
+      seller_name: previousOwner,
+      buyer_name: newOwner,
+      sale_value: saleValue,
+      timestamp: now
+    });
+    localStorage.setItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify(transactions));
+
+    // 5. Audit log
+    const auditLogs = JSON.parse(localStorage.getItem(STORAGE_KEY_AUDIT) || '[]');
+    auditLogs.unshift({
+      id: auditLogs.length + 1,
+      user_name: 'S. Meenakshi',
+      user_role: 'REGISTRAR',
+      action: 'OWNERSHIP_MUTATION',
+      resource: `Survey No: ${record.survey_number}`,
+      status: 'SUCCESS',
+      details: `Transferred title deed from ${previousOwner} to ${newOwner} (Valuation: ${saleValue}) in Block #${newIndex}`,
+      timestamp: now
+    });
+    localStorage.setItem(STORAGE_KEY_AUDIT, JSON.stringify(auditLogs));
+
+    return {
+      success: true,
+      message: 'Land ownership transfer successfully executed and anchored to blockchain.',
+      transaction_id: txId,
+      block_index: newIndex,
+      record_hash: newRecordHash,
+      block_hash: newBlockHash,
+      seller_name: previousOwner,
+      buyer_name: newOwner,
+      sale_value: saleValue,
+      deed_type: deedType,
+      timestamp: now
+    };
+  },
+
   async getBlockchain() {
     await initClientStorage();
     const blocks = JSON.parse(localStorage.getItem(STORAGE_KEY_BLOCKS) || '[]');

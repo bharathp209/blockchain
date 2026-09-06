@@ -132,8 +132,12 @@ export const api = {
       });
       return await handleResponse(res);
     } catch {
-      return clientEngine.createRecord({ ...data, survey_number: id });
+      return clientEngine.transferLandRecord(id, data);
     }
+  },
+
+  async transferProperty(id, data) {
+    return this.updateLandRecord(id, data);
   },
 
   // Verification & Tamper Detection

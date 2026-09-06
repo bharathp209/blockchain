@@ -9,7 +9,8 @@ import {
   Users,
   ShieldCheck,
   Lock,
-  Compass
+  Compass,
+  ArrowRightLeft
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab }) {
@@ -28,6 +29,13 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       label: 'Land Records',
       icon: FileSpreadsheet,
       roles: ['ADMIN', 'REGISTRAR', 'CITIZEN']
+    },
+    {
+      id: 'transfers',
+      label: 'Property Transfers',
+      icon: ArrowRightLeft,
+      roles: ['ADMIN', 'REGISTRAR', 'CITIZEN'],
+      badge: role === 'CITIZEN' ? 'Restricted' : 'Mutation Hub'
     },
     {
       id: 'add-record',
@@ -146,8 +154,9 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             {role === 'CITIZEN' && 'Read-only access with public cryptographic verification.'}
           </div>
         </div>
-        <div className="mt-3 text-center">
-          <span className="text-[10px] text-slate-400 font-mono">LANDCHAIN PROTOCOL • SECURE NETWORK</span>
+        <div className="mt-3 text-center space-y-1">
+          <span className="text-[10px] text-slate-400 font-mono block">LANDCHAIN PROTOCOL • SECURE NETWORK</span>
+          <span className="text-[9px] text-cyan-400/70 font-mono block tracking-wider">© Bharath</span>
         </div>
       </div>
     </aside>

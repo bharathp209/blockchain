@@ -237,9 +237,12 @@ export default function LoginPage({ onBackToLanding }) {
             </form>
 
             {/* Bottom Security Footer */}
-            <div className="pt-4 border-t border-slate-800/80 text-center text-[10px] text-slate-400 font-mono flex items-center justify-center gap-2">
-              <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-              <span>SHA-256 Ledger Consensus • 256-Bit SSL Secured</span>
+            <div className="pt-4 border-t border-slate-800/80 text-center text-[10px] text-slate-400 font-mono flex flex-col items-center justify-center gap-1">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+                <span>SHA-256 Ledger Consensus • 256-Bit SSL Secured</span>
+              </div>
+              <span className="text-cyan-400/70 text-[9px] tracking-wider">© Bharath</span>
             </div>
 
           </div>
